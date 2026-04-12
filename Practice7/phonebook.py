@@ -1,7 +1,7 @@
 import csv
 from connect import connect
 
-# INSERT FROM CSV
+
 def insert_from_csv(filename):
     conn = connect()
     cur = conn.cursor()
@@ -20,7 +20,6 @@ def insert_from_csv(filename):
     print("CSV data inserted!")
 
 
-# INSERT FROM CONSOLE
 def insert_from_console():
     name = input("Enter name: ")
     phone = input("Enter phone: ")
@@ -39,7 +38,7 @@ def insert_from_console():
     print("Contact added!")
 
 
-# UPDATE CONTACT
+
 def update_contact():
     old_phone = input("Enter phone of contact to update: ")
     new_name = input("Enter new name (or press Enter to skip): ")
@@ -66,7 +65,7 @@ def update_contact():
     print("Contact updated!")
 
 
-# QUERY WITH FILTERS
+
 def query_contacts():
     print("1 - Show all")
     print("2 - Search by name")
@@ -102,7 +101,7 @@ def query_contacts():
     conn.close()
 
 
-# DELETE CONTACT
+
 def delete_contact():
     choice = input("Delete by (1) name or (2) phone: ")
 
