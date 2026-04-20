@@ -11,7 +11,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION get_contacts_paginated(
+CREATE  OR REPLACE FUNCTION get_contacts_paginated(
     p_limit INT,
     p_offset INT
 )
