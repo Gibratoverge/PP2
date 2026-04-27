@@ -2,15 +2,15 @@ import pygame
 import datetime
 from tools import draw_shape, flood_fill
 
-# Initialize Pygame & Fonts
+
 pygame.init()
 pygame.font.init()
 
-# Constants
+
 WIDTH, HEIGHT = 1000, 700
 FPS = 120
 
-# Colors
+
 COLORS = {
     'black': (0, 0, 0),
     'white': (255, 255, 255),
@@ -19,7 +19,7 @@ COLORS = {
     'blue': (0, 0, 255),
 }
 
-# Setup Display
+
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Extended Paint App - TSIS 2")
 

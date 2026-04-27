@@ -5,10 +5,10 @@ from persistence import load_settings, save_settings, load_leaderboard, save_sco
 from ui import Button, TextInput
 from racer import Player, Enemy, Obstacle, PowerUp
 
-# --- AUTO-FIX PATHING ---
+
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-# --- Initialization ---
+
 pygame.init()
 pygame.mixer.init()
 WIDTH, HEIGHT = 600, 600
@@ -17,10 +17,10 @@ pygame.display.set_caption("TSIS 3: Racer")
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)
 
-# --- Load Settings Early ---
+
 settings = load_settings()
 
-# --- Asset Loading ---
+
 def load_sound(name):
     path = os.path.join('assets', 'sounds', name)
     try:
@@ -38,8 +38,8 @@ try:
 except:
     print("Warning: bg_music.mp3 not found.")
 
-# --- Global Variables & Groups ---
-state = "MENU" # Set to "PLAY" to skip menu for testing
+
+state = "MENU" 
 player_name = "Player"
 score = 0
 distance = 0
@@ -50,7 +50,6 @@ obstacles = pygame.sprite.Group()
 powerups = pygame.sprite.Group()
 player = None
 
-# --- Function Definitions (Must be BEFORE they are called) ---
 def reset_game():
     global player, score, distance, all_sprites, enemies, obstacles, powerups
     all_sprites.empty()
