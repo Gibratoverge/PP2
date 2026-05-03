@@ -1,20 +1,12 @@
--- ============================================================
--- schema.sql  –  PhoneBook extended schema (TSIS 1)
--- Run once to set up (or upgrade) the database.
--- ============================================================
-
--- 1. Groups / categories ─────────────────────────────────────
 CREATE TABLE IF NOT EXISTS groups (
     id   SERIAL PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL
 );
 
--- Seed default groups
 INSERT INTO groups (name) VALUES
     ('Family'), ('Work'), ('Friend'), ('Other')
 ON CONFLICT (name) DO NOTHING;
 
--- 2. Contacts (base table) ───────────────────────────────────
 CREATE TABLE IF NOT EXISTS contacts (
     id         SERIAL PRIMARY KEY,
     first_name VARCHAR(50)  NOT NULL,
@@ -25,7 +17,6 @@ CREATE TABLE IF NOT EXISTS contacts (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Add new columns to an existing contacts table (idempotent)
 DO $$
 BEGIN
     IF NOT EXISTS (
@@ -51,7 +42,6 @@ BEGIN
 END
 $$;
 
--- 3. Phones (1-to-many with contacts) ────────────────────────
 CREATE TABLE IF NOT EXISTS phones (
     id         SERIAL PRIMARY KEY,
     contact_id INTEGER NOT NULL REFERENCES contacts(id) ON DELETE CASCADE,

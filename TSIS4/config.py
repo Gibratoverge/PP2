@@ -10,16 +10,14 @@ DEFAULT_SETTINGS = {
 }
 
 def load_settings():
-    # If file doesn't exist, create it with defaults
     if not os.path.exists(SETTINGS_FILE):
         save_settings(DEFAULT_SETTINGS)
-        return DEFAULT_SETTINGS
+        return DEFAULT_SETTINGS.copy()
     
     try:
-        with open(SETTINGS_FILE, "r") as f:
+        with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
             user_settings = json.load(f)
         
-        # FIX: Ensure all default keys exist in the loaded dictionary
         updated = False
         for key, value in DEFAULT_SETTINGS.items():
             if key not in user_settings:
@@ -30,11 +28,10 @@ def load_settings():
             save_settings(user_settings)
             
         return user_settings
-    except (json.JSONDecodeError, Exception):
-        # If the file is broken/corrupted, overwrite with defaults
+    except:
         save_settings(DEFAULT_SETTINGS)
-        return DEFAULT_SETTINGS
+        return DEFAULT_SETTINGS.copy()
 
 def save_settings(settings):
-    with open(SETTINGS_FILE, "w") as f:
+    with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
         json.dump(settings, f, indent=4)

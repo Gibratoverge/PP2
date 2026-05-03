@@ -38,7 +38,6 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 click = True
             
-            # Username typing logic
             if state == "MENU" and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
                     username = username[:-1]
@@ -48,11 +47,11 @@ def main():
         screen.fill((20, 20, 20))
 
         if state == "MENU":
-            # Title
+            
             title = font.render("SNAKE GAME", True, (0, 255, 0))
             screen.blit(title, (WIDTH//2 - title.get_width()//2, 50))
             
-            # Username input
+            
             prompt = small_font.render("Type Username: " + username + ("_" if pygame.time.get_ticks() % 1000 < 500 else ""), True, (200, 200, 200))
             screen.blit(prompt, (WIDTH//2 - prompt.get_width()//2, 150))
 
@@ -130,7 +129,6 @@ def main():
                 settings["sound"] = not settings["sound"]
                 config.save_settings(settings)
                 
-            # Simple color cycler logic (Green -> Blue -> Yellow)
             if draw_button("Cycle Snake Color", btn_color, tuple(settings["snake_color"]), (150, 150, 150), mouse_pos) and click:
                 c = settings["snake_color"]
                 if c == [0, 255, 0]: settings["snake_color"] = [0, 100, 255] # Blue

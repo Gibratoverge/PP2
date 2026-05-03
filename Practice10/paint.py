@@ -16,7 +16,6 @@ import math
 
 pygame.init()
 
-# ── Screen layout constants ───────────────────────────────────────────────────
 SCREEN_W     = 900
 SCREEN_H     = 650
 TOOLBAR_H    = 70                         # toolbar height at the top

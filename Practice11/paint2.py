@@ -43,10 +43,8 @@ PALETTE = [
     (255, 255, 255),     # White (eraser colour)
 ]
 
-# Brush size options (in pixels)
 BRUSH_SIZES = [2, 4, 8, 16]
 
-# Tool IDs
 TOOL_PENCIL      = "pencil"
 TOOL_LINE        = "line"
 TOOL_RECT        = "rect"         # bounding rectangle (freeform)
@@ -58,7 +56,6 @@ TOOL_RHOMBUS     = "rhombus"      # ← NEW: rhombus (diamond)
 TOOL_FILL        = "fill"         # flood fill
 TOOL_ERASER      = "eraser"
 
-# Tool display names for the toolbar buttons
 TOOL_LABELS = {
     TOOL_PENCIL:    "✏ Pencil",
     TOOL_LINE:      "╱ Line",
@@ -72,7 +69,6 @@ TOOL_LABELS = {
     TOOL_ERASER:    "⬜ Eraser",
 }
 
-# Order tools appear in the toolbar (top → bottom)
 TOOL_ORDER = [
     TOOL_PENCIL, TOOL_LINE,
     TOOL_RECT, TOOL_SQUARE,
@@ -82,9 +78,6 @@ TOOL_ORDER = [
     TOOL_FILL, TOOL_ERASER,
 ]
 
-# ──────────────────────────────────────────────
-# GEOMETRY HELPERS
-# ──────────────────────────────────────────────
 
 def points_for_right_triangle(x1, y1, x2, y2):
     """
@@ -152,9 +145,6 @@ def flood_fill(surface, pos, fill_colour):
         stack += [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
 
 
-# ──────────────────────────────────────────────
-# TOOLBAR UI COMPONENT
-# ──────────────────────────────────────────────
 
 class Toolbar:
     """Renders the left-side toolbar with tool buttons, palette, and size picker."""
@@ -167,7 +157,6 @@ class Toolbar:
         self.font       = font
         self.small_font = small_font
 
-        # Calculate button layout
         self.tool_rects = {}   # tool_id → pygame.Rect
         y = 10
         for tool in TOOL_ORDER:
@@ -177,7 +166,6 @@ class Toolbar:
 
         self.tool_section_bottom = y + self.SEC_GAP
 
-        # Palette swatches (3 per row)
         self.palette_rects = []   # list of (Rect, colour)
         px, py = 8, self.tool_section_bottom + 24
         SWATCH = 28
@@ -189,14 +177,12 @@ class Toolbar:
 
         self.palette_bottom = py + (len(PALETTE) // 4 + 1) * (SWATCH + 4) + self.SEC_GAP
 
-        # Brush size buttons
         self.size_rects = []   # list of (Rect, size)
         sx, sy = 10, self.palette_bottom + 24
         for i, sz in enumerate(BRUSH_SIZES):
             r = pygame.Rect(sx + i * 34, sy, 30, 30)
             self.size_rects.append((r, sz))
 
-        # Clear button at bottom
         self.clear_rect = pygame.Rect(10, sy + 44, TOOLBAR_W - 20, 32)
 
     def draw(self, surface, active_tool, active_colour, active_size):
@@ -204,22 +190,18 @@ class Toolbar:
         pygame.draw.rect(surface, BG_TOOLBAR, (0, 0, TOOLBAR_W, SCREEN_H))
         pygame.draw.line(surface, HIGHLIGHT, (TOOLBAR_W - 1, 0), (TOOLBAR_W - 1, SCREEN_H), 2)
 
-        # ── Title ──
         title = self.small_font.render("TOOLS", True, TEXT_COLOUR)
         surface.blit(title, (TOOLBAR_W // 2 - title.get_width() // 2, 2))
 
-        # ── Tool buttons ──
         for tool, rect in self.tool_rects.items():
             colour = HIGHLIGHT if tool == active_tool else (60, 63, 78)
             pygame.draw.rect(surface, colour, rect, border_radius=5)
             txt = self.small_font.render(TOOL_LABELS[tool], True, WHITE)
             surface.blit(txt, txt.get_rect(center=rect.center))
 
-        # ── Palette section header ──
         ph = self.small_font.render("COLOUR", True, TEXT_COLOUR)
         surface.blit(ph, (TOOLBAR_W // 2 - ph.get_width() // 2, self.tool_section_bottom + 6))
 
-        # ── Palette swatches ──
         for rect, col in self.palette_rects:
             pygame.draw.rect(surface, col, rect, border_radius=4)
             if col == active_colour:
@@ -227,18 +209,14 @@ class Toolbar:
             else:
                 pygame.draw.rect(surface, (100, 100, 100), rect, 1, border_radius=4)
 
-        # ── Size section header ──
         sh = self.small_font.render("SIZE", True, TEXT_COLOUR)
         surface.blit(sh, (TOOLBAR_W // 2 - sh.get_width() // 2, self.palette_bottom + 6))
 
-        # ── Size buttons ──
         for rect, sz in self.size_rects:
             col = HIGHLIGHT if sz == active_size else (60, 63, 78)
             pygame.draw.rect(surface, col, rect, border_radius=4)
-            # Draw a dot proportional to the brush size
             pygame.draw.circle(surface, WHITE, rect.center, min(sz // 2, 10))
 
-        # ── Clear button ──
         pygame.draw.rect(surface, (180, 50, 50), self.clear_rect, border_radius=6)
         ct = self.small_font.render("🗑 Clear", True, WHITE)
         surface.blit(ct, ct.get_rect(center=self.clear_rect.center))
@@ -271,9 +249,6 @@ class Toolbar:
         return new_tool, new_colour, new_size, clear
 
 
-# ──────────────────────────────────────────────
-# MAIN PAINT APPLICATION
-# ──────────────────────────────────────────────
 
 class PaintApp:
     """The main Paint application class."""
@@ -286,25 +261,20 @@ class PaintApp:
         self.font       = pygame.font.SysFont("arial", 18, bold=True)
         self.small_font = pygame.font.SysFont("arial", 13)
 
-        # ── Canvas (persistent drawing surface) ──
         self.canvas     = pygame.Surface((CANVAS_W, CANVAS_H))
         self.canvas.fill(BG_CANVAS)
 
-        # ── Toolbar ──
         self.toolbar    = Toolbar(self.font, self.small_font)
 
-        # ── Active settings ──
         self.active_tool   = TOOL_PENCIL
         self.active_colour = BLACK
         self.active_size   = 4
 
-        # ── Interaction state ──
         self.drawing       = False    # True while LMB is held
         self.start_pos     = None     # canvas-relative start of a shape drag
         self.last_pos      = None     # last pencil/eraser point (for smooth lines)
         self.running       = True
 
-    # ── Coordinate helper ──────────────────────
 
     def to_canvas(self, pos):
         """Convert screen coords → canvas coords (subtract toolbar width)."""
@@ -314,7 +284,6 @@ class PaintApp:
         """Return True if the screen position is over the canvas area."""
         return pos[0] >= CANVAS_X
 
-    # ── Main loop ──────────────────────────────
 
     def run(self):
         while self.running:
@@ -324,7 +293,6 @@ class PaintApp:
         pygame.quit()
         sys.exit()
 
-    # ── Events ─────────────────────────────────
 
     def _handle_events(self):
         for event in pygame.event.get():
@@ -335,62 +303,50 @@ class PaintApp:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
-                # Keyboard shortcut Ctrl+Z: clear canvas
                 if event.key == pygame.K_DELETE:
                     self.canvas.fill(BG_CANVAS)
 
-            # ── Mouse button DOWN ──
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 pos = event.pos
 
                 if not self.on_canvas(pos):
-                    # Click is inside the toolbar
                     self.active_tool, self.active_colour, self.active_size, clear = \
                         self.toolbar.handle_click(pos, self.active_tool,
                                                   self.active_colour, self.active_size)
                     if clear:
                         self.canvas.fill(BG_CANVAS)
                 else:
-                    # Click is on the canvas → begin drawing
                     cp = self.to_canvas(pos)
                     self.drawing   = True
                     self.start_pos = cp
                     self.last_pos  = cp
 
-                    # Flood fill is applied immediately on click
                     if self.active_tool == TOOL_FILL:
                         flood_fill(self.canvas, cp, self.active_colour)
                         self.drawing = False
 
-                    # Pencil / eraser: draw a dot at the click point
                     elif self.active_tool in (TOOL_PENCIL, TOOL_ERASER):
                         colour = WHITE if self.active_tool == TOOL_ERASER else self.active_colour
                         pygame.draw.circle(self.canvas, colour, cp, self.active_size // 2)
 
-            # ── Mouse MOTION while button held ──
             elif event.type == pygame.MOUSEMOTION and self.drawing:
                 pos = event.pos
                 if self.on_canvas(pos):
                     cp = self.to_canvas(pos)
 
                     if self.active_tool in (TOOL_PENCIL, TOOL_ERASER):
-                        # Draw continuous strokes by connecting last point to current
                         colour = WHITE if self.active_tool == TOOL_ERASER else self.active_colour
                         pygame.draw.line(self.canvas, colour, self.last_pos, cp, self.active_size)
                         self.last_pos = cp
 
-                    # For shape tools, preview is handled in _draw(); nothing committed yet
 
-            # ── Mouse button UP ──
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 if self.drawing and self.on_canvas(event.pos):
                     cp = self.to_canvas(event.pos)
-                    # Commit the shape to the canvas
                     self._commit_shape(self.start_pos, cp)
                 self.drawing   = False
                 self.start_pos = None
 
-    # ── Shape commitment ───────────────────────
 
     def _commit_shape(self, p1, p2):
         """
@@ -408,13 +364,11 @@ class PaintApp:
             pygame.draw.line(self.canvas, col, p1, p2, w)
 
         elif tool == TOOL_RECT:
-            # Bounding box rectangle (any proportions)
             rx = min(x1, x2); ry = min(y1, y2)
             rw = abs(x2 - x1); rh = abs(y2 - y1)
             pygame.draw.rect(self.canvas, col, (rx, ry, rw, rh), w)
 
         elif tool == TOOL_SQUARE:
-            # Force equal side length (smaller of width/height)
             side = min(abs(x2 - x1), abs(y2 - y1))
             sx   = x1 if x2 >= x1 else x1 - side
             sy   = y1 if y2 >= y1 else y1 - side
@@ -440,14 +394,12 @@ class PaintApp:
             pts_int = [(int(px), int(py)) for px, py in pts]
             pygame.draw.polygon(self.canvas, col, pts_int, w)
 
-    # ── Preview overlay while dragging ─────────
 
     def _draw_preview(self, surface, p1, p2):
         """
         Draw a ghost/preview of the shape being dragged onto the screen
         (not onto self.canvas, so it doesn't leave a permanent mark).
         """
-        # Offset p1 and p2 from canvas coords → screen coords
         def sc(pt): return (pt[0] + CANVAS_X, pt[1])
 
         x1, y1 = p1
@@ -456,7 +408,6 @@ class PaintApp:
         w   = self.active_size
         tool = self.active_tool
 
-        # We draw onto the screen surface with the same geometry as _commit_shape
         if tool == TOOL_LINE:
             pygame.draw.line(surface, self.active_colour, sc(p1), sc(p2), w)
 
@@ -491,24 +442,19 @@ class PaintApp:
             pts_sc = [(int(px) + CANVAS_X, int(py)) for px, py in pts]
             pygame.draw.polygon(surface, self.active_colour, pts_sc, w)
 
-    # ── Rendering ──────────────────────────────
 
     def _draw(self):
         self.screen.fill(BLACK)
 
-        # Blit the canvas onto the screen (right of toolbar)
         self.screen.blit(self.canvas, (CANVAS_X, 0))
 
-        # If a shape drag is in progress, draw a live preview
         if self.drawing and self.start_pos and self.active_tool not in (
                 TOOL_PENCIL, TOOL_ERASER, TOOL_FILL):
             mouse_canvas = self.to_canvas(pygame.mouse.get_pos())
             self._draw_preview(self.screen, self.start_pos, mouse_canvas)
 
-        # Toolbar (drawn last so it sits on top)
         self.toolbar.draw(self.screen, self.active_tool, self.active_colour, self.active_size)
 
-        # Status bar at the very bottom of the toolbar
         mx, my  = pygame.mouse.get_pos()
         cx, cy  = self.to_canvas((mx, my))
         tool_lbl = TOOL_LABELS.get(self.active_tool, "")
@@ -520,9 +466,6 @@ class PaintApp:
         pygame.display.flip()
 
 
-# ──────────────────────────────────────────────
-# ENTRY POINT
-# ──────────────────────────────────────────────
 if __name__ == "__main__":
     app = PaintApp()
     app.run()

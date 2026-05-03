@@ -72,7 +72,6 @@ def draw_hud():
     if player and player.shield_active:
         screen.blit(font.render("SHIELD ACTIVE", True, (255, 215, 0)), (10, 80))
 
-# --- UI Setup ---
 btn_play = Button(200, 150, 200, 50, "Play")
 btn_board = Button(200, 220, 200, 50, "Leaderboard")
 btn_settings = Button(200, 290, 200, 50, "Settings")
@@ -82,7 +81,6 @@ btn_retry = Button(200, 350, 200, 50, "Retry")
 btn_menu = Button(200, 420, 200, 50, "Main Menu")
 name_input = TextInput(200, 250, 200, 40)
 
-# --- Spawn Events ---
 SPAWN_ENEMY = pygame.USEREVENT + 1
 SPAWN_OBSTACLE = pygame.USEREVENT + 2
 SPAWN_POWERUP = pygame.USEREVENT + 3
@@ -90,17 +88,14 @@ pygame.time.set_timer(SPAWN_ENEMY, 1500)
 pygame.time.set_timer(SPAWN_OBSTACLE, 2500)
 pygame.time.set_timer(SPAWN_POWERUP, 6000)
 
-# Initial call if you want to skip the menu
 if state == "PLAY":
     reset_game()
 
-# --- Main Loop ---
 running = True
 while running:
     screen.fill((50, 150, 50)) 
     pygame.draw.rect(screen, (40, 40, 40), (150, 0, 300, 600)) 
     
-    # Scrolling road lines
     for y in range(0, 600, 40):
         pygame.draw.rect(screen, (255, 255, 255), (245, (y + int(distance * 10)) % 600, 10, 20))
         pygame.draw.rect(screen, (255, 255, 255), (345, (y + int(distance * 10)) % 600, 10, 20))
@@ -154,7 +149,6 @@ while running:
                 state = "PLAY"
             if btn_menu.is_clicked(event): state = "MENU"
 
-    # --- Render State ---
     if state == "MENU":
         btn_play.draw(screen)
         btn_board.draw(screen)
@@ -169,7 +163,6 @@ while running:
         distance += (0.1 + (speed_boost * 0.02))
         score += 0.2 if not player.nitro_active else 0.5
         
-        # Collisions
         if not player.shield_active:
             if pygame.sprite.spritecollideany(player, enemies) or pygame.sprite.spritecollideany(player, obstacles):
                 if settings["sound"] and snd_crash: snd_crash.play()
@@ -182,7 +175,6 @@ while running:
                     save_score(player_name, int(score), int(distance))
                     state = "GAMEOVER"
         
-        # Powerups
         hits = pygame.sprite.spritecollide(player, powerups, True)
         for hit in hits:
             if settings["sound"] and snd_powerup: snd_powerup.play()

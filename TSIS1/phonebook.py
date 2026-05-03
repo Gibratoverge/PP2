@@ -131,7 +131,7 @@ def filter_by_group():
 
     with _conn() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            # accept id or name
+         
             if choice.isdigit():
                 cur.execute(
                     """
@@ -232,9 +232,7 @@ def paginated_browse():
             break
 
 
-# ──────────────────────────────────────────────────────────────
-# 3.3  Import / Export
-# ──────────────────────────────────────────────────────────────
+
 
 def export_to_json(filepath="contacts_export.json"):
     """Export all contacts (with phones and group) to a JSON file."""
@@ -418,9 +416,7 @@ def call_search_contacts():
     _print_contacts(results)
 
 
-# ──────────────────────────────────────────────────────────────
-# Main menu
-# ──────────────────────────────────────────────────────────────
+
 
 MENU = """
 ╔══════════════════════════════════════════════════╗

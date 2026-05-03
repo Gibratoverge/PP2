@@ -14,19 +14,19 @@ import sys
 
 pygame.init()
 
-# ── Grid & screen constants ───────────────────────────────────────────────────
-CELL       = 20          # pixels per grid cell
-COLS, ROWS = 30, 25      # grid dimensions
-HUD_H      = 50          # header bar height (for score / level)
+
+CELL       = 20         
+COLS, ROWS = 30, 25      
+HUD_H      = 50         
 
 SCREEN_W = CELL * COLS
 SCREEN_H = CELL * ROWS + HUD_H
 
-BASE_FPS        = 8      # snake moves per second at level 1
-FPS_PER_LEVEL   = 2      # extra moves/s gained each level
-FOODS_PER_LEVEL = 3      # foods needed to advance one level
+BASE_FPS        = 8     
+FPS_PER_LEVEL   = 2      
+FOODS_PER_LEVEL = 3     
 
-# ── Colours ───────────────────────────────────────────────────────────────────
+
 BLACK    = (0,   0,   0  )
 WHITE    = (255, 255, 255)
 DKGREEN  = (0,   140, 0  )

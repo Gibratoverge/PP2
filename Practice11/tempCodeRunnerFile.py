@@ -1,1 +1,0 @@
-Draw faint grid lines for visibility

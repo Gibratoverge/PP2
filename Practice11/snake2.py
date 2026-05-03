@@ -10,24 +10,20 @@ import pygame
 import random
 import sys
 
-# ──────────────────────────────────────────────
-# CONSTANTS
-# ──────────────────────────────────────────────
-CELL        = 20           # Size of each grid cell in pixels
-COLS        = 30           # Number of columns in the grid
-ROWS        = 28           # Number of rows (play area)
+
+CELL        = 20           
+COLS        = 30           
+ROWS        = 28          
 SCREEN_W    = COLS * CELL  # 600
 SCREEN_H    = ROWS * CELL + 50  # +50 for HUD strip at top
 HUD_H       = 50           # Height of the score bar at top
 FPS         = 10           # Snake moves this many times per second
 
-# Direction vectors
 UP    = ( 0, -1)
 DOWN  = ( 0,  1)
 LEFT  = (-1,  0)
 RIGHT = ( 1,  0)
 
-# Colours (R, G, B)
 BLACK       = (0,   0,   0)
 WHITE       = (255, 255, 255)
 BG          = (30,  30,  30)    # grid background
@@ -41,11 +37,6 @@ ORANGE      = (255, 140, 0)
 PURPLE      = (180, 60,  200)
 SILVER      = (192, 192, 192)
 
-# ──────────────────────────────────────────────
-# FOOD TYPES
-# Each entry: label, score value, colour, spawn weight, lifetime (frames)
-# Lower lifetime → food disappears faster
-# ──────────────────────────────────────────────
 FOOD_TYPES = [
     {"label": "Apple",   "value": 1, "colour": RED,    "weight": 50, "lifetime": None },  # never disappears
     {"label": "Orange",  "value": 2, "colour": ORANGE, "weight": 30, "lifetime": 50   },  # ~5 s at FPS 10
@@ -55,9 +46,6 @@ FOOD_TYPES = [
 
 MAX_FOOD_ON_SCREEN = 4    # Maximum simultaneous food items
 
-# ──────────────────────────────────────────────
-# HELPER – weighted random choice
-# ──────────────────────────────────────────────
 def weighted_choice(items):
     """Select an item from `items` list proportionally by its 'weight' key."""
     total   = sum(i["weight"] for i in items)
@@ -69,9 +57,6 @@ def weighted_choice(items):
             return item
     return items[-1]
 
-# ──────────────────────────────────────────────
-# CLASSES
-# ──────────────────────────────────────────────
 
 class Food:
     """A single food item with a score value and optional disappear timer."""
@@ -81,7 +66,6 @@ class Food:
         Spawn at a random unoccupied grid cell.
         `occupied_cells` – set of (col, row) tuples already in use.
         """
-        # Pick food type via weighted random
         ftype         = weighted_choice(FOOD_TYPES)
         self.label    = ftype["label"]
         self.value    = ftype["value"]
@@ -89,7 +73,6 @@ class Food:
         self.lifetime = ftype["lifetime"]   # None = immortal
         self.age      = 0                   # frames alive
 
-        # Find a free grid cell
         all_cells = {(c, r) for c in range(COLS) for r in range(ROWS)}
         free_cells = list(all_cells - occupied_cells)
         self.pos  = random.choice(free_cells) if free_cells else (COLS // 2, ROWS // 2)
@@ -110,26 +93,21 @@ class Food:
     def draw(self, surface):
         """Draw food as a coloured circle; fades when nearly expired."""
         col, row = self.pos
-        # Pixel position of the cell centre
         px = col * CELL + CELL // 2
         py = row * CELL + CELL // 2 + HUD_H
 
-        # Alpha fading for timed food
         fraction = self.time_fraction()
         if fraction is not None:
-            # Create a temporary surface for alpha blending
             surf = pygame.Surface((CELL, CELL), pygame.SRCALPHA)
             alpha = int(80 + 175 * fraction)   # fades from 255 → 80
             r, g, b = self.colour
             pygame.draw.circle(surf, (r, g, b, alpha), (CELL // 2, CELL // 2), CELL // 2 - 2)
             surface.blit(surf, (col * CELL, row * CELL + HUD_H))
-            # Timer ring around timed food to show urgency
             ring_colour = (255, 255, 255, alpha)
             pygame.draw.circle(surface, (*WHITE, alpha), (px, py), CELL // 2 - 1, 2)
         else:
             pygame.draw.circle(surface, self.colour, (px, py), CELL // 2 - 2)
 
-        # Show score value on the food
         font_s = pygame.font.SysFont("arial", 11, bold=True)
         txt    = font_s.render(str(self.value), True, WHITE if self.colour != YELLOW else BLACK)
         surface.blit(txt, txt.get_rect(center=(px, py)))
@@ -139,7 +117,6 @@ class Snake:
     """The player-controlled snake."""
 
     def __init__(self):
-        # Start in the middle, 3 segments long, facing RIGHT
         mid_col, mid_row = COLS // 2, ROWS // 2
         self.body      = [(mid_col - i, mid_row) for i in range(3)]   # head first
         self.direction = RIGHT
@@ -170,10 +147,8 @@ class Snake:
     def is_dead(self):
         """Check wall collision or self-collision."""
         hx, hy = self.head()
-        # Hit a wall
         if not (0 <= hx < COLS and 0 <= hy < ROWS):
             return True
-        # Hit its own body (skip head itself)
         if self.head() in self.body[1:]:
             return True
         return False
@@ -190,12 +165,10 @@ class Snake:
             colour = SNAKE_HEAD if i == 0 else SNAKE_BODY
             pygame.draw.rect(surface, colour, (px + 1, py + 1, CELL - 2, CELL - 2), border_radius=4)
 
-        # Eyes on the head
         hx, hy = self.body[0]
         cx = hx * CELL + CELL // 2
         cy = hy * CELL + CELL // 2 + HUD_H
         dx, dy = self.direction
-        # Offset eyes perpendicular to direction of travel
         perp = (-dy, dx)
         for side in (+1, -1):
             ex = cx + dx * 4 + perp[0] * side * 4
@@ -204,9 +177,6 @@ class Snake:
             pygame.draw.circle(surface, BLACK,     (ex + dx, ey + dy), 1)
 
 
-# ──────────────────────────────────────────────
-# GAME STATE
-# ──────────────────────────────────────────────
 
 class SnakeGame:
     """Main game controller for Snake."""
@@ -231,10 +201,8 @@ class SnakeGame:
         self.frame     = 0
         self.game_over = False
         self.running   = True
-        # Spawn the first food immediately
         self._try_spawn_food()
 
-    # ── Main loop ──────────────────────────────
 
     def run(self):
         while self.running:
@@ -246,7 +214,6 @@ class SnakeGame:
         pygame.quit()
         sys.exit()
 
-    # ── Events ─────────────────────────────────
 
     def _handle_events(self):
         for event in pygame.event.get():
@@ -260,20 +227,16 @@ class SnakeGame:
                 elif event.key == pygame.K_r and self.game_over: self.reset()
                 elif event.key == pygame.K_ESCAPE: self.running = False
 
-    # ── Update ─────────────────────────────────
 
     def _update(self):
         self.frame += 1
 
-        # Move the snake one step
         self.snake.move()
 
-        # Check if snake died
         if self.snake.is_dead():
             self.game_over = True
             return
 
-        # Check whether snake head lands on any food
         head = self.snake.head()
         for food in self.foods[:]:
             if food.pos == head:
@@ -281,13 +244,11 @@ class SnakeGame:
                 self.snake.grew = True         # grow snake on next move
                 self.foods.remove(food)
 
-        # Update food timers; remove expired timed food
         for food in self.foods[:]:
             expired = food.update()
             if expired:
                 self.foods.remove(food)
 
-        # Periodically try to spawn new food (up to max limit)
         if self.frame % self.FOOD_SPAWN_INTERVAL == 0:
             self._try_spawn_food()
 
@@ -297,31 +258,24 @@ class SnakeGame:
             occupied = self.snake.occupied_cells() | {f.pos for f in self.foods}
             self.foods.append(Food(occupied))
 
-    # ── Draw ───────────────────────────────────
 
     def _draw(self):
         self.screen.fill(BG)
 
-        # Draw faint grid lines for visibility
         for c in range(COLS):
             for r in range(ROWS):
                 pygame.draw.rect(self.screen, GRID_LINE,
                                  (c * CELL, r * CELL + HUD_H, CELL, CELL), 1)
 
-        # Draw food items
         for food in self.foods:
             food.draw(self.screen)
 
-        # Draw snake
         self.snake.draw(self.screen)
 
-        # HUD
         self._draw_hud()
 
-        # Food legend on right side
         self._draw_legend()
 
-        # Game‑over overlay
         if self.game_over:
             self._draw_game_over()
 
@@ -370,9 +324,6 @@ class SnakeGame:
         self.screen.blit(rst, rst.get_rect(center=(cx, cy + 50)))
 
 
-# ──────────────────────────────────────────────
-# ENTRY POINT
-# ──────────────────────────────────────────────
 if __name__ == "__main__":
     game = SnakeGame()
     game.run()

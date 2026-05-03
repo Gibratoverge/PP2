@@ -10,16 +10,15 @@ import sys
 
 pygame.init()
 
-# ── Constants ────────────────────────────────────────────────────────────────
+
 SCREEN_W, SCREEN_H = 400, 600
 FPS = 60
 
-# Road boundaries (the playable lane strip)
+
 ROAD_LEFT  = 60
 ROAD_RIGHT = 340
-LANE_W     = (ROAD_RIGHT - ROAD_LEFT) // 3   # width of each of the 3 lanes
+LANE_W     = (ROAD_RIGHT - ROAD_LEFT) // 3  
 
-# Colour palette
 WHITE  = (255, 255, 255)
 BLACK  = (0,   0,   0  )
 GRAY   = (90,  90,  90 )
